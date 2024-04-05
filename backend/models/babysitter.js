@@ -2,6 +2,7 @@ const mongoose = require('mongoose')
 
 const babysitterSchema = new mongoose.Schema(
     {
+        userCategory: {type: String, required: true, default: "Babysitter"},
         email: {type: String, required: true, unique: true},
         password: {type: String, required: true, minLength: 8},
         firstName: {type: String, required: true},

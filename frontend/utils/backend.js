@@ -59,3 +59,32 @@ export async function deleteReview(id) {
     const { data } = await axios.delete(`/api/reviews/${id}`)
     return data
 }
+
+//signup & login
+export async function signUp(user) {
+    const { data } = await axios.post('/api/users/signup', user)
+    return data
+}
+
+export async function logIn(user) {
+    const { data } = await axios.post('/api/users/login', user)
+    return data
+}
+
+//find user by id
+export async function getUser(userId) {
+    const { data } = await axios.get(`/api/users/${userId}`)
+    return data
+}
+
+//find current user by token
+export async function getUserByToken(userCategory) {
+    const authHeader = { headers: { 'Authorization': localStorage.getItem('userToken') } }
+    if (userCategory === 'Babysitter') {
+        const { data } = await axios.get(`/api/babysitters/token`, authHeader)
+        return data
+    } else {
+        const { data } = await axios.get(`/api/parents/token`, authHeader)
+        return data
+    }
+}

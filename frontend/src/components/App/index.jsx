@@ -1,33 +1,151 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import { Routes, Route, Link, useNavigate } from "react-router-dom"
+import AboutPage from '../AboutPage'
+import HomePage from '../HomePage'
+import DetailsPage from '../DetailsPage'
+import AuthFormPage from '../AuthFormPage'
+import ProfilePage from '../ProfilePage'
+import { getBabysitters } from '../../../utils/backend'
 import './styles.css';
-import { Button } from 'react-bootstrap';
 
 export default function App() {
-  const [count, setCount] = useState(0);
+	const [babysitters, setBabysitters] = useState([])
+	const [loginStatus, setLoginStatus] = useState(false)
+	const [username, setUsername] = useState('')
+	const [detailsData, setDetailsData] = useState({})
+	const navigate = useNavigate()
 
-  return (
-    <div className="App">
+	async function getData() {
+		const data = await getBabysitters()
+		//add filters here
+		setBabysitters(data)
+	}
 
-      <h1>Vite + React with ypescript + Bootstrap 5</h1>
-      <div className="card">
-        <button onClick={() => setCount((count) => count + 1)}>
-          count is {count}
-        </button>
-        <p>
-          Edit <code>src/App.tsx</code> and save to test HMR
-        </p>
-      </div>
-      <p className="read-the-docs">
-        Click on the Vite and React logos to learn more
-      </p>
-      <Button variant="primary">Primary</Button>{' '}
-      <Button variant="secondary">Secondary</Button>{' '}
-      <Button variant="success">Success</Button>{' '}
-      <Button variant="warning">Warning</Button>{' '}
-      <Button variant="danger">Danger</Button>{' '}
-      <Button variant="info">Info</Button>{' '}
-      <Button variant="light">Light</Button>{' '}
-      <Button variant="dark">Dark</Button> <Button variant="link">Link</Button>
-    </div>
-  );
+	async function getUserData() {
+		const currentUserData = await getUserByToken()
+		setUsername(`${currentUserData.firstName} ${currentUserData.lastName}`)
+	}
+
+	useEffect(() => {
+		getData()
+		if (loginStatus) getUserData()
+	}, [])
+
+	let authLink = 
+		<div>
+			<Link to='/auth/signup'>
+				<h2>Sign Up</h2>
+			</Link>
+			<Link to='/auth/login'>
+				<h2>Log In</h2>
+			</Link>
+		</div>
+	let profileLink
+	let userGreeting = ''
+
+	if (loginStatus) {
+		authLink = 
+			<div>
+				<button
+					onClick={() => {
+						if (confirm("Are you sure you would like to log out?")) {
+							localStorage.clear()
+							setLoginStatus(false)
+							navigate('/')
+						}
+					}}>
+					Log Out
+				</button>
+			</div>
+		userGreeting = 
+			<h1>
+				Logged in as {username}
+			</h1>
+		if (localStorage.getItem("userCategory") === "Babysitter") {
+			profileLink = 
+				<div>
+					<Link to={'/profile/babysitter/' + localStorage.getItem("userToken")}>
+						<h2>My Babysitter Profile</h2>
+					</Link>
+				</div>
+		} else {
+			profileLink = 
+				<div>
+					<Link to={'/profile/parent/' + localStorage.getItem("userToken")}>
+						<h2>My Parent Profile</h2>
+					</Link>
+				</div>
+		}
+	} else if (localStorage.userToken) {
+		setLoginStatus(true)
+	}
+
+	return (
+		<>
+			<nav>
+				<Link to='/'>
+					<h1>NannyNetLV</h1>
+				</Link>
+				<Link to='/about'>
+					<h1>About</h1>
+				</Link>
+				{profileLink}
+				{authLink}
+			</nav>
+			{userGreeting}
+			<Routes>
+				<Route
+					path="/"
+					element={
+						<HomePage
+							babysitters={babysitters}
+							loginStatus={loginStatus}
+							username={username}
+						/>
+					}
+				/>
+				<Route
+					path="/profile/babysitter/:babysitterId"
+					element={
+						<ProfilePage
+							babysitters={babysitters}
+							loginStatus={loginStatus}
+							username={username}
+						/>
+					}
+				/>
+				<Route
+					path="/profile/parent/:parentId"
+					element={
+						<ProfilePage
+							babysitters={babysitters}
+							loginStatus={loginStatus}
+							username={username}
+						/>
+					}
+				/>
+				<Route
+					path="/auth/:formType"
+					element={
+						<AuthFormPage
+							setLoginStatus={setLoginStatus}
+						/>
+					}
+				/>
+				<Route
+					path="/about"
+					element={<AboutPage/>}
+				/>
+				<Route
+					path="/details/:babysitterId"
+					element={
+						<DetailsPage
+							babysitter={detailsData}
+							loginStatus={loginStatus}
+						/>
+					}
+				/>
+			</Routes>
+		</>
+	)
 }
