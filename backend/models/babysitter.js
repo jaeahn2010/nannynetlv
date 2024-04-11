@@ -7,7 +7,9 @@ const babysitterSchema = new mongoose.Schema(
         password: {type: String, required: true, minLength: 8},
         firstName: {type: String, required: true},
         lastName: {type: String, required: true},
+        gender: {type: String, required: true},
         languagesSpoken: [{type: String, required: true}],
+        willTravel: {type: Boolean, required: true},
         serviceZipCodes: [{type: Number, maxLength: 5, required: true}],
         availability: {
             days:
@@ -19,6 +21,8 @@ const babysitterSchema = new mongoose.Schema(
                 }
             ],
         },
+        specialties: [{type: String}],
+        rate: {type: String, required: true},
         introduction: {type: String, maxLength: 250},
     }
 )

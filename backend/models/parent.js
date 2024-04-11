@@ -12,7 +12,7 @@ const parentSchema = new mongoose.Schema(
             {
                 firstName: {type: String, required: true},
                 lastName: {type: String, required: true},
-                sex: {type: String, required: true},
+                gender: {type: String, required: true},
                 age: {type: Number, required: true},
                 notes: {type: String, maxLength: 250},
             }

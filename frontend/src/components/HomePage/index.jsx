@@ -1,39 +1,73 @@
 import Gallery from '../Gallery'
 import { useState, useEffect } from 'react'
 
-export default function HomePage({babysitters, loginStatus, username}) {
-	let zipCodesList = [89002, 89005, 89011, 89012, 89014, 89015, 89030, 89031, 89032, 89044, 89052, 89054, 89074, 89081, 89084, 89086, 89087, 89101, 89102, 89103, 89104, 89106, 89107, 89108, 89109, 89110, 89113, 89115, 89117, 89118, 89119, 89120, 89121, 89122, 89123, 89124, 89128, 89129, 89130, 89131, 89134, 89135, 89138, 89139, 89141, 89142, 89143, 89144, 89145, 89146, 89147, 89148, 89149, 89156, 89158, 89161, 89166, 89169, 89178, 89179, 89183, 89191]
-	let countriesList = []
+export default function HomePage({babysitters, loginStatus, username, languages, setLanguages, zipCodes, setZipCodes}) {
 
-	const [zipcodes, setZipCodes] = useState([])
-	const [languages, setLanguages] = useState([])
-
-	async function getLanguages() {
-		const url = 'https://list-of-all-countries-and-languages-with-their-codes.p.rapidapi.com/languages';
-		const options = {
-			method: 'GET',
-			headers: {
-				'X-RapidAPI-Key': '8e7a3c20e0mshfcf7b64583b7672p1f4e2bjsnc2fc0f0fba3a',
-				'X-RapidAPI-Host': 'list-of-all-countries-and-languages-with-their-codes.p.rapidapi.com'
-			}
-		};
-
-		try {
-			const response = await fetch(url, options);
-			const result = await response.clone().json()
-			for (let countryObj of result) {
-				countriesList.push(countryObj.name)
-			}
-		} catch (error) {
-			console.error(error);
-		}
+	function handleSubmit(evt) {
+		evt.preventDefault()
+		setLanguages([])
+		setZipCodes(zipCodes)
 	}
 
-	useEffect(() => {
-		getLanguages()
-	}, [])
+	function handleInputChange(evt) {
+		console.log(evt.target.name)
+	}
 
 	return (
-		<h1>Home Page</h1>
+		<>
+			<h1>Welcome to NannyNetLV!</h1>
+			<h2>Search for your ideal babysitter according to your preferences.</h2>
+			<div>
+				<p>SEARCH CRITERIA</p>
+				<form onSubmit={handleSubmit}>
+					<div>
+						<p>Zip codes:</p>
+						<div>
+						{
+							zipCodes.map(zip => {
+								return (
+									<p key={zip}>
+										<input
+											name={zip}
+											id={zip}
+											type="checkbox"
+											onChange={handleInputChange}
+										/>
+										<label htmlFor={zip}>{zip}</label>
+										<br/>
+									</p>
+								)
+							})
+						}
+						</div>
+					</div>
+					<div>
+						<p>Preferred languages:</p>
+						<div>
+							{
+								languages.map(language => {
+									return (
+										<p key={language}>
+											<input
+												name={language}
+												id={language}
+												type="checkbox"
+												onChange={handleInputChange}
+											/>
+											<label htmlFor={language}>{language}</label>
+										</p>
+									)
+								})
+							}
+						</div>
+					</div>
+				</form>
+			</div>
+			<Gallery
+				babysitters={babysitters}
+				loginStatus={loginStatus}
+				username={username}
+			/>
+		</>
 	)
 }
